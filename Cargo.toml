@@ -1,0 +1,44 @@
+[package]
+name = "ravel"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dotenv = "0.15.0"
+sea-orm = { version = "0.3.2", features = [ "sqlx-mysql", "runtime-tokio-native-tls", "macros" ], default-features = false }
+axum = "0.3"
+hyper = { version = "0.14", features = ["full"] }
+tokio = { version = "1.13", features = ["full"] }
+tower = { version = "0.4", features = ["util", "filter"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+handlebars_ = { package = "handlebars", version = "4.1", features = ["dir_source"], optional = true }
+tera_ = { package = "tera", version = "1.15", features = [], optional = true }
+log = "0.4"
+env_logger = "0.9"
+# rocket = "0.5.0-rc.1"
+
+
+[features]
+default = ["database", "handlebars"]
+
+handlebars = ["handlebars_"]
+tera = ["tera_"]
+# 
+# database features
+database = []
+mysql = ["sea-orm/sqlx-mysql"]
+postgres = ["sea-orm/sqlx-postgres"]
+sqlite = ["sea-orm/sqlx-sqlite"]
+# 
+# 
+# 
+# cache = [] # TODO use these
+# auth = [] # TODO use these
+# queue = [] # TODO use these
+# scheduler = [] # TODO use these
+# http = [] # TODO use these
+# storage = [] # TODO use these
