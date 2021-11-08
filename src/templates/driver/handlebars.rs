@@ -1,6 +1,8 @@
 use crate::templates::TemplateEngine;
-use crate::templates::TemplateError;
+// use crate::templates::TemplateError;
 use crate::templates::TemplateOptions;
+use actix_web::error::ErrorBadRequest;
+use actix_web::Error;
 use handlebars_::Handlebars;
 // use handlebars_::TemplateError as HandlebarsTemplateError;
 use serde_json::Value;
@@ -12,24 +14,21 @@ pub struct HandlebarsTemplateEngine {
 }
 
 impl HandlebarsTemplateEngine {
-    pub fn register(params: TemplateOptions) -> Result<TemplateEngine, TemplateError> {
+    pub fn register(params: TemplateOptions) -> TemplateEngine {
         let mut handlebars = Handlebars::new();
         let path = Path::new(params.get_directory());
 
-        match handlebars.register_templates_directory(".hbs", path) {
-            Ok(()) => Ok(TemplateEngine::HandlebarsEngine(Self {
-                engine: handlebars,
-            })),
-            Err(template_error) => Err(TemplateError::Registration(String::from(
-                "Failed to register template. TODO: better error messaging.",
-            ))),
-        }
+        handlebars
+            .register_templates_directory(".hbs", path)
+            .expect("Failed to register template. TODO: better error messaging.");
+
+        TemplateEngine::HandlebarsEngine(Self { engine: handlebars })
     }
 
-    pub fn render(&self, view: &str, json: Value) -> Result<String, TemplateError> {
+    pub fn render(&self, view: &str, json: Value) -> Result<String, Error> {
         match self.engine.render(view, &json) {
             Ok(string) => Ok(string),
-            Err(render_error) => Err(TemplateError::Registration(render_error.desc)),
+            Err(render_error) => Err(ErrorBadRequest(render_error)),
         }
     }
 }

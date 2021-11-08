@@ -1,6 +1,6 @@
 use crate::templates::HandlebarsTemplateEngine;
-use crate::templates::TemplateError;
-use axum::response::Html;
+use actix_web::Error;
+use actix_web::HttpResponse;
 use serde_json::Value;
 
 /// Render a html template depending on the backend
@@ -13,24 +13,22 @@ pub enum TemplateEngine {
     /// Create a tera template renderer.
     #[cfg(feature = "tera")]
     TeraEngine(TeraTemplateEngine),
-    /// No template engine configured through feature flags.
-    None,
 }
 
 impl TemplateEngine {
     // forward render calls to each specific implementation.
-    pub fn render(&self, view: &str, json: Value) -> Result<String, TemplateError> {
+    pub fn render(&self, view: &str, json: Value) -> Result<String, Error> {
         match self {
             #[cfg(feature = "handlebars")]
             TemplateEngine::HandlebarsEngine(template_engine) => template_engine.render(view, json),
             #[cfg(feature = "tera")]
             TemplateEngine::TeraEngine(template_engine) => template_engine.render(view, json),
-            TemplateEngine::None => Err(TemplateError::Registration("Tried to render template without setting template engine. Use feature: <'handlebars'|'tera'>.".to_string())),
+            // TemplateEngine::None => Err(Error),
         }
     }
 
-    pub fn response(&self, view: &str, json: Value) -> Result<Html<String>, TemplateError> {
+    pub fn response(&self, view: &str, json: Value) -> Result<HttpResponse, Error> {
         let html = self.render(view, json)?;
-        Ok(Html::from(html))
+        Ok(HttpResponse::Ok().content_type("text/html").body(html))
     }
 }

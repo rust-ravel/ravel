@@ -4,7 +4,6 @@
 // use serde_json::Value;
 // use std::path::Path;
 use driver::*;
-use error::TemplateError;
 
 pub use template_engine::TemplateEngine;
 
@@ -25,7 +24,7 @@ pub struct TemplateOptions {
 
 impl Template {
     /// Method to create a [DatabaseConnection] on a database
-    pub fn register<C>(opt: C) -> Result<TemplateEngine, TemplateError>
+    pub fn register<C>(opt: C) -> TemplateEngine
     where
         C: Into<TemplateOptions>,
     {
@@ -36,11 +35,6 @@ impl Template {
 
         #[cfg(feature = "tera")]
         return TeraTemplateEngine::register(opt);
-
-        Err(TemplateError::Registration(format!(
-            "The template engine '{}' has no supporting driver.",
-            opt.directory
-        )))
     }
 }
 
